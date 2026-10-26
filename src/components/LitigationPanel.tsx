@@ -67,6 +67,7 @@ export function LitigationPanel({ analysis, onBack }: LitigationPanelProps): Rea
           lawyerName,
           conclusion,
           summary: analysis.summary,
+          caseDetails: analysis.caseDetails,
           retainedClauses: retained,
           exhibits,
           amicableEmail,

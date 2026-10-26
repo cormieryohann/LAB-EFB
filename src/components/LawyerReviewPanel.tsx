@@ -1,6 +1,6 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {
   Alert,
+  AlertTitle,
   Box,
   Button,
   Paper,
@@ -15,12 +15,12 @@ import { useLawyerReviewStore } from '../stores/useLawyerReviewStore';
 import type { LawyerDecision } from '../stores/useLawyerReviewStore';
 import type { ContractAnalysis } from '../types/contractAnalysis';
 import { sortClausesByStrength } from '../utils/sortClausesByStrength';
+import { CaseDetailsCard } from './CaseDetailsCard';
 import { ClauseCard } from './ClauseCard';
 import { LawyerValidationSummary } from './LawyerValidationSummary';
 
 interface LawyerReviewPanelProps {
   analysis: ContractAnalysis;
-  onBack: () => void;
   /** Choix de la voie après validation : démarche amiable ou procédure contentieuse. */
   onChoosePath: (path: 'amicable' | 'litigation') => void;
 }
@@ -128,7 +128,6 @@ function ConfirmValidationForm({ clauseCount }: { clauseCount: number }): React.
 
 export function LawyerReviewPanel({
   analysis,
-  onBack,
   onChoosePath,
 }: LawyerReviewPanelProps): React.JSX.Element {
   const clauses = sortClausesByStrength(analysis.clauses);
@@ -137,9 +136,6 @@ export function LawyerReviewPanel({
   return (
     <Stack component="section" aria-labelledby="lawyer-review-title" spacing={3}>
       <Box>
-        <Button startIcon={<ArrowBackIcon />} color="inherit" onClick={onBack} sx={{ mb: 1 }}>
-          Revenir au rapport
-        </Button>
         <Typography id="lawyer-review-title" variant="h4" component="h2" gutterBottom>
           Espace avocat : validation de la pré-analyse
         </Typography>
@@ -153,16 +149,25 @@ export function LawyerReviewPanel({
         <LawyerValidationSummary clauses={clauses} onChoosePath={onChoosePath} />
       ) : (
         <>
+          <Alert severity="warning">
+            <AlertTitle>Rien n’est acquis avant votre validation</AlertTitle>
+            L’IA peut se tromper : clause oubliée, extrait mal recopié, montant ou fondement
+            inexact. Contrôlez chaque extrait sur le contrat original.
+          </Alert>
+
           <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3 } }}>
             <Typography variant="subtitle2" component="h3" gutterBottom>
-              Synthèse de l’IA
+              Synthèse de l’IA (non vérifiée)
             </Typography>
             <Typography>{analysis.summary}</Typography>
           </Paper>
 
+          <CaseDetailsCard details={analysis.caseDetails} />
+
           {clauses.length === 0 ? (
             <Alert severity="info">
-              L’IA n’a repéré aucune clause contestable. Indiquez votre conclusion ci-dessous.
+              L’IA n’a repéré aucune clause contestable, ce qui ne prouve pas qu’il n’y en a pas.
+              Relisez le contrat, puis indiquez votre conclusion ci-dessous.
             </Alert>
           ) : (
             <Stack spacing={2}>

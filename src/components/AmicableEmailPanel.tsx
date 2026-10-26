@@ -26,6 +26,7 @@ import type { ContractAnalysis } from '../types/contractAnalysis';
 import { findPlaceholders } from '../utils/findPlaceholders';
 import { retainedClauses } from '../utils/retainedClauses';
 import { sortClausesByStrength } from '../utils/sortClausesByStrength';
+import { CaseDetailsCard } from './CaseDetailsCard';
 
 interface AmicableEmailPanelProps {
   analysis: ContractAnalysis;
@@ -61,6 +62,20 @@ export function AmicableEmailPanel({
 
   const retained = retainedClauses(sortClausesByStrength(analysis.clauses), reviews);
   const placeholders = draft === undefined ? [] : findPlaceholders(draft.body);
+  // Adresse trouvée dans le contrat pour chaque destinataire : elle pré-remplit le champ.
+  const contractAddress = (target: EmailRecipient): string =>
+    (target === 'banque'
+      ? analysis.caseDetails.complaintsEmail
+      : analysis.caseDetails.mediatorEmail
+    )?.trim() ?? '';
+
+  const chooseRecipient = (next: EmailRecipient): void => {
+    // Une adresse saisie par l'avocat est conservée ; celle du contrat suit le destinataire.
+    const isPrefilled =
+      recipientAddress.trim() === '' || recipientAddress === contractAddress(recipient);
+    setRecipient(next);
+    if (isPrefilled) setRecipientAddress(contractAddress(next));
+  };
 
   const generate = (): void => {
     if (apiKey === null) return;
@@ -72,10 +87,16 @@ export function AmicableEmailPanel({
           lawyerName,
           conclusion,
           summary: analysis.summary,
+          caseDetails: analysis.caseDetails,
           retainedClauses: retained,
         },
       },
-      { onSuccess: setDraft },
+      {
+        onSuccess: (email) => {
+          setDraft(email);
+          if (recipientAddress.trim() === '') setRecipientAddress(contractAddress(recipient));
+        },
+      },
     );
   };
 
@@ -90,10 +111,13 @@ export function AmicableEmailPanel({
         </Typography>
         <Typography color="text.secondary">
           L’IA rédige le mail à partir des {retained.length} clause{retained.length > 1 ? 's' : ''}{' '}
-          retenue{retained.length > 1 ? 's' : ''} et de votre conclusion. Relisez-le et complétez-le
-          avant de l’envoyer.
+          retenue{retained.length > 1 ? 's' : ''}, des informations du contrat et de votre
+          conclusion. L’IA peut se tromper : relisez chaque montant et chaque référence, et
+          complétez le mail avant de l’envoyer.
         </Typography>
       </Box>
+
+      <CaseDetailsCard details={analysis.caseDetails} />
 
       <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3 } }}>
         <Stack spacing={2}>
@@ -105,7 +129,7 @@ export function AmicableEmailPanel({
             color="primary"
             value={recipient}
             onChange={(_event, value: EmailRecipient | null) => {
-              if (value !== null) setRecipient(value);
+              if (value !== null) chooseRecipient(value);
             }}
             aria-label="Destinataire du mail"
           >

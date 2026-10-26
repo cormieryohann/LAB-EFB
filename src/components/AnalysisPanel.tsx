@@ -1,4 +1,3 @@
-import GavelIcon from '@mui/icons-material/Gavel';
 import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import { Alert, Box, Button, LinearProgress, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
@@ -6,16 +5,13 @@ import type { ContractAnalysisState } from '../hooks/useContractAnalysis';
 import { useApiKeyStore } from '../stores/useApiKeyStore';
 import { AnalysisReport } from './AnalysisReport';
 import { ApiKeyDialog } from './ApiKeyDialog';
+import { SubmitToLawyerCard } from './SubmitToLawyerCard';
 
 interface AnalysisPanelProps {
   state: ContractAnalysisState;
-  onRequestLawyerValidation: () => void;
 }
 
-export function AnalysisPanel({
-  state,
-  onRequestLawyerValidation,
-}: AnalysisPanelProps): React.JSX.Element {
+export function AnalysisPanel({ state }: AnalysisPanelProps): React.JSX.Element {
   const hasApiKey = useApiKeyStore((store) => store.apiKey !== null);
   const [apiKeyDialogOpen, setApiKeyDialogOpen] = useState(false);
   const { analysis, error, isPending, isStale, canLaunch, isReading, launch } = state;
@@ -59,8 +55,7 @@ export function AnalysisPanel({
         <Box role="status">
           <LinearProgress color="secondary" />
           <Typography color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
-            Claude lit vos documents et recherche les clauses contestables. Comptez une à deux
-            minutes.
+            Analyse en cours… Comptez une à deux minutes.
           </Typography>
         </Box>
       )}
@@ -73,23 +68,9 @@ export function AnalysisPanel({
         </Alert>
       )}
 
-      {analysis !== undefined && !isPending && (
-        <>
-          <AnalysisReport analysis={analysis} />
-          <Box sx={{ textAlign: 'center' }}>
-            <Button
-              variant="contained"
-              size="large"
-              startIcon={<GavelIcon />}
-              onClick={onRequestLawyerValidation}
-              disabled={isStale}
-              sx={{ textTransform: 'uppercase', letterSpacing: 1 }}
-            >
-              Validation avocat
-            </Button>
-          </Box>
-        </>
-      )}
+      {analysis !== undefined && !isPending && <AnalysisReport analysis={analysis} />}
+
+      {analysis !== undefined && !isPending && !isStale && <SubmitToLawyerCard />}
 
       {apiKeyDialogOpen && <ApiKeyDialog open onClose={() => setApiKeyDialogOpen(false)} />}
     </Stack>

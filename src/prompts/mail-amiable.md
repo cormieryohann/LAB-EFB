@@ -14,13 +14,15 @@ situation, tout en montrant que le dossier est solide et suivi par un avocat.
 - Le mail est écrit et signé par l'avocat, au nom et pour le compte de son client emprunteur.
 - Il ne présente que les clauses retenues par l'avocat. Une clause « à approfondir » est évoquée
   avec prudence (« nous nous interrogeons sur… », « nous vous remercions de nous préciser… »).
-- Écrire « clause contestable » ou « clause dont le caractère abusif est soutenu » : seul un juge
+- Écrire « clause litigieuse » ou « clause dont le caractère abusif est soutenu » : seul un juge
   déclare une clause abusive.
 
 ## Structure
 
-1. Rappel du contrat : référence du prêt, date de l'offre, montant, si ces informations sont
-   connues ; sinon, laisser un champ à compléter entre crochets.
+1. Identification du dossier : nom du ou des emprunteurs, nature du crédit, référence du prêt,
+   date de l'offre, montant, durée, taux et TAEG, assurance emprunteur s'il y a lieu. Reprendre
+   toutes les informations fournies dans `<informations_du_dossier>` ; mettre l'objet du mail au
+   nom de l'emprunteur et à la référence du prêt quand elles sont connues.
 2. Pour chaque clause retenue : citation de la clause, motif de contestation, fondement (article
    de loi ou décision de justice).
 3. Demandes précises : ce que l'emprunteur attend (restitution, recalcul, renonciation à une
@@ -38,8 +40,13 @@ situation, tout en montrant que le dossier est solide et suivi par un avocat.
   qu'une réclamation préalable a été faite auprès de la banque (date à compléter entre crochets)
   et demande au médiateur de proposer une solution.
 
-## Informations inconnues
+## Informations du dossier
 
-Toute information absente du dossier (nom du client, numéro de prêt, adresse, date de la
-réclamation préalable, montant exact) est laissée entre crochets, par exemple `[Numéro du prêt]`,
-pour que l'avocat la complète avant l'envoi. Ne jamais inventer un chiffre, une date ou un nom.
+Le mail doit être prêt à envoyer : utiliser chaque information de `<informations_du_dossier>`
+(emprunteurs et adresses, prêteur, médiateur, références, dates, montants, taux), ainsi que les
+montants cités dans les clauses retenues et la conclusion de l'avocat. Les recopier exactement.
+
+Seule une information absente de tout le dossier (par exemple la date de la réclamation
+préalable) est laissée entre crochets, par exemple `[Numéro du prêt]`, pour que l'avocat la
+complète avant l'envoi. Ne jamais inventer un chiffre, une date ou un nom, et ne pas déduire la
+civilité (Madame, Monsieur) d'un prénom : écrire le nom complet sans civilité.

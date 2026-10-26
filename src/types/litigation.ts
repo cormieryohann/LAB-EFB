@@ -1,10 +1,12 @@
 import { z } from 'zod/v4';
 import type { AmicableEmail, RetainedClause } from './amicableEmail';
+import type { CaseDetails } from './contractAnalysis';
 
 export interface LitigationInput {
   lawyerName: string;
   conclusion: string;
   summary: string;
+  caseDetails: CaseDetails;
   retainedClauses: RetainedClause[];
   /** Pièces numérotées dans l'ordre du bordereau : l'IA les cite par leur numéro. */
   exhibits: string[];

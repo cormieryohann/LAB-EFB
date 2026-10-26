@@ -6,6 +6,7 @@ import type * as ClaudeServiceModule from '../services/ClaudeService';
 import { useAmicableEmailStore } from '../stores/useAmicableEmailStore';
 import { useApiKeyStore } from '../stores/useApiKeyStore';
 import { useLawyerReviewStore } from '../stores/useLawyerReviewStore';
+import { EMPTY_CASE_DETAILS } from '../test/caseDetails';
 import { renderWithProviders } from '../test/renderWithProviders';
 import type { ContractAnalysis } from '../types/contractAnalysis';
 import { AmicableEmailPanel } from './AmicableEmailPanel';
@@ -26,7 +27,16 @@ const DECHEANCE = {
   strength: 'forte' as const,
 };
 
+const CASE_DETAILS = {
+  ...EMPTY_CASE_DETAILS,
+  borrowers: [{ name: 'Camille Durand', address: '12 rue des Lilas, 69003 Lyon' }],
+  lender: 'Banque Exemple',
+  complaintsEmail: 'reclamations@banque-exemple.fr',
+  mediatorEmail: 'mediateur@asf-exemple.fr',
+};
+
 const ANALYSIS: ContractAnalysis = {
+  caseDetails: CASE_DETAILS,
   summary: 'Crédit immobilier de 200 000 €.',
   clauses: [
     {
@@ -80,6 +90,7 @@ describe('AmicableEmailPanel', () => {
       lawyerName: 'Me Martin',
       conclusion: 'Demander l’annulation de la déchéance.',
       summary: 'Crédit immobilier de 200 000 €.',
+      caseDetails: CASE_DETAILS,
       retainedClauses: [
         { clause: DECHEANCE, decision: 'validee', note: 'Jurisprudence favorable' },
       ],
@@ -87,7 +98,12 @@ describe('AmicableEmailPanel', () => {
     expect(
       screen.getByText('À compléter avant l’envoi : [Numéro du prêt], [Nom du client]'),
     ).toBeInTheDocument();
-  });
+    // L'adresse du médiateur trouvée dans le contrat pré-remplit le champ, et suit le destinataire.
+    const address = screen.getByLabelText('Adresse du destinataire');
+    expect(address).toHaveValue('mediateur@asf-exemple.fr');
+    await user.click(screen.getByRole('button', { name: 'Banque (service réclamations)' }));
+    expect(address).toHaveValue('reclamations@banque-exemple.fr');
+  }, 15_000);
 
   it('prépare le mail pour la messagerie avec l’objet et le texte modifiés', async () => {
     useAmicableEmailStore.getState().setDraft({ subject: 'Objet initial', body: 'Texte' });

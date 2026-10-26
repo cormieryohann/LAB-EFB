@@ -8,6 +8,7 @@ import { useApiKeyStore } from '../stores/useApiKeyStore';
 import { useDocumentStore } from '../stores/useDocumentStore';
 import { useLawyerReviewStore } from '../stores/useLawyerReviewStore';
 import { useLitigationStore } from '../stores/useLitigationStore';
+import { EMPTY_CASE_DETAILS } from '../test/caseDetails';
 import { renderWithProviders } from '../test/renderWithProviders';
 import type { ContractAnalysis } from '../types/contractAnalysis';
 import { LitigationPanel } from './LitigationPanel';
@@ -29,6 +30,7 @@ const CLAUSE = {
 };
 
 const ANALYSIS: ContractAnalysis = {
+  caseDetails: EMPTY_CASE_DETAILS,
   summary: 'Crédit immobilier de 200 000 €.',
   clauses: [CLAUSE],
   risks: 'Saisie.',

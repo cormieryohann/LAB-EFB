@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ContractAnalysis } from '../types/contractAnalysis';
+import { EMPTY_CASE_DETAILS } from '../test/caseDetails';
 import {
   CLAUDE_MODEL,
   analyzeContracts,
@@ -59,6 +60,11 @@ function mockStreamedMessage(text: string, stopReason: string): ReturnType<typeo
 }
 
 const ANALYSIS: ContractAnalysis = {
+  caseDetails: {
+    ...EMPTY_CASE_DETAILS,
+    borrowers: [{ name: 'Camille Durand', address: null }],
+    loanReference: 'PR-2019-4471',
+  },
   summary: 'Offre de prêt immobilier de 200 000 € sur 20 ans.',
   clauses: [
     {
@@ -177,6 +183,7 @@ describe('draftAmicableEmail', () => {
         lawyerName: 'Me Martin',
         conclusion: 'Obtenir la renonciation aux pénalités.',
         summary: ANALYSIS.summary,
+        caseDetails: ANALYSIS.caseDetails,
         retainedClauses: [{ clause: ANALYSIS.clauses[0], decision: 'validee', note: 'Solide' }],
       }),
     ).resolves.toEqual(email);
@@ -190,6 +197,9 @@ describe('draftAmicableEmail', () => {
     expect(body.system).toContain('Consignes de rédaction du mail amiable');
     const instruction = body.messages[0]?.content[0]?.text ?? '';
     expect(instruction).toContain('service réclamations de la banque');
+    expect(instruction).toContain('Emprunteur : Camille Durand');
+    expect(instruction).toContain('Référence du prêt : PR-2019-4471');
+    expect(instruction).not.toContain('TAEG / TEG');
     expect(instruction).toContain('Déchéance du terme après 15 jours');
     expect(instruction).toContain("Note de l'avocat : Solide");
     expect(instruction).toContain('Obtenir la renonciation aux pénalités.');
@@ -207,6 +217,7 @@ describe('draftLitigationBrief', () => {
         lawyerName: 'Me Martin',
         conclusion: '',
         summary: ANALYSIS.summary,
+        caseDetails: ANALYSIS.caseDetails,
         retainedClauses: [{ clause: ANALYSIS.clauses[0], decision: 'a_approfondir', note: '' }],
         exhibits: ['Contrat et annexes : offre.pdf', 'Réponse à la démarche amiable'],
         amicableOutcome: 'Refus de la banque.',

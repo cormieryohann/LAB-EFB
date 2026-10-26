@@ -1,6 +1,6 @@
 import { z } from 'zod/v4';
 import type { LawyerDecision } from '../stores/useLawyerReviewStore';
-import type { Clause } from './contractAnalysis';
+import type { CaseDetails, Clause } from './contractAnalysis';
 
 export type EmailRecipient = 'banque' | 'mediateur';
 
@@ -15,6 +15,7 @@ export interface AmicableEmailInput {
   lawyerName: string;
   conclusion: string;
   summary: string;
+  caseDetails: CaseDetails;
   retainedClauses: RetainedClause[];
 }
 

@@ -53,7 +53,7 @@ export function FileDropzone({ onFilesAccepted }: FileDropzoneProps): React.JSX.
         <input {...getInputProps({ 'aria-label': 'Sélectionner vos contrats' })} />
         <UploadFileIcon color="primary" sx={{ fontSize: 56, mb: 1 }} />
         <Typography variant="h6" component="p" gutterBottom>
-          {isDragActive ? 'Déposez vos fichiers ici' : 'Glissez-déposez votre contrat de crédit'}
+          {isDragActive ? 'Déposez vos fichiers ici' : 'Glissez-déposez vos documents'}
         </Typography>
         <Typography color="text.secondary" sx={{ mb: 3 }}>
           Offre de prêt, conditions générales, avenant, contrat d’assurance emprunteur…

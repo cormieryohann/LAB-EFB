@@ -34,8 +34,10 @@ et les montants avant toute signification.
    civile (montant entre crochets).
 6. **Bordereau de pièces** : reprendre la liste fournie, dans le même ordre.
 
-## Informations inconnues
+## Informations du dossier
 
-Toute information absente du dossier (identité et adresse des parties, juridiction, numéro du
-prêt, dates, montants) est laissée entre crochets, par exemple `[Juridiction compétente]`, pour que
-l'avocat la complète. Ne jamais inventer un chiffre, une date, un nom ou une décision de justice.
+Reprendre exactement chaque information de `<informations_du_dossier>` (identité et adresse des
+parties, prêteur, références, dates, montants, taux). Toute information absente du dossier
+(juridiction, ou une donnée que les documents ne donnent pas) est laissée entre crochets, par
+exemple `[Juridiction compétente]`, pour que l'avocat la complète. Ne jamais inventer un
+chiffre, une date, un nom ou une décision de justice.

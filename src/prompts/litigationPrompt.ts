@@ -1,12 +1,12 @@
 import type { LitigationInput } from '../types/litigation';
-import { formatRetainedClauses } from './emailPrompt';
+import { formatCaseDetails, formatRetainedClauses } from './emailPrompt';
 import briefGuidelines from './projet-assignation.md?raw';
 
 /**
  * Consigne système du projet d'acte contentieux. La structure de l'acte vit dans
  * `projet-assignation.md`, modifiable sans toucher au code.
  */
-export const LITIGATION_SYSTEM_PROMPT = `Tu es l'assistant de rédaction de VIGICONTRAT, un cabinet d'avocats qui défend les emprunteurs contre les clauses abusives de leurs contrats de crédit.
+export const LITIGATION_SYSTEM_PROMPT = `Tu es l'assistant de rédaction de VIGICONTRAT, un cabinet d'avocats qui défend les emprunteurs contre les clauses litigieuses de leurs contrats de crédit.
 
 Ta mission : rédiger, en français, le projet d'assignation de la procédure contentieuse, à partir du dossier validé par l'avocat. Suis les consignes ci-dessous.
 
@@ -18,6 +18,7 @@ export function litigationInstruction({
   lawyerName,
   conclusion,
   summary,
+  caseDetails,
   retainedClauses,
   exhibits,
   amicableEmail,
@@ -25,6 +26,7 @@ export function litigationInstruction({
 }: LitigationInput): string {
   const sections = [
     `Rédige le projet d'assignation.\n\nAvocat constitué : ${lawyerName.trim()}`,
+    formatCaseDetails(caseDetails),
     `<synthese_du_dossier>\n${summary}\n</synthese_du_dossier>`,
     `<clauses_retenues>\n${formatRetainedClauses(retainedClauses)}\n</clauses_retenues>`,
     `<bordereau_de_pieces>\n${exhibits.map((exhibit, index) => `Pièce n° ${index + 1} : ${exhibit}`).join('\n')}\n</bordereau_de_pieces>`,
