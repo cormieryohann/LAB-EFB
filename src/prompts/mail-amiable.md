@@ -19,26 +19,23 @@ situation, tout en montrant que le dossier est solide et suivi par un avocat.
 
 ## Structure
 
-1. Identification du dossier : nom du ou des emprunteurs, nature du crédit, référence du prêt,
-   date de l'offre, montant, durée, taux et TAEG, assurance emprunteur s'il y a lieu. Reprendre
-   toutes les informations fournies dans `<informations_du_dossier>` ; mettre l'objet du mail au
-   nom de l'emprunteur et à la référence du prêt quand elles sont connues.
-2. Pour chaque clause retenue : citation de la clause, motif de contestation, fondement (article
-   de loi ou décision de justice).
-3. Demandes précises : ce que l'emprunteur attend (restitution, recalcul, renonciation à une
-   pénalité, suspension d'une procédure…), chiffrées quand c'est possible.
-4. Délai de réponse : 30 jours à compter de la réception.
-5. Suite envisagée à défaut de réponse satisfaisante : saisine du médiateur bancaire (si le mail
-   est adressé à la banque) ou du juge (si le mail est adressé au médiateur), en rappelant que
-   l'emprunteur préfère une solution amiable.
-6. Formule de politesse et signature de l'avocat.
+La structure suit le modèle de lettre du destinataire, fourni dans `<modele>` :
 
-## Destinataire
+- **Banque** : `modeles/3-amiable/reclamation-banque.md`, la réclamation au service réclamations.
+- **Médiateur bancaire** : `modeles/3-amiable/saisine-mediateur.md`, la saisine du médiateur, qui
+  rappelle la réclamation préalable faite auprès de la banque.
 
-- **Banque** : le mail s'adresse au service réclamations de l'établissement de crédit.
-- **Médiateur bancaire** : le mail est une saisine du médiateur. Il expose le litige, rappelle
-  qu'une réclamation préalable a été faite auprès de la banque (date à compléter entre crochets)
-  et demande au médiateur de proposer une solution.
+Dans les deux cas, la lettre contient :
+
+- l'identification du dossier : nom du ou des emprunteurs, nature du crédit, référence du prêt,
+  date de l'offre, montant, durée, taux et TAEG, assurance emprunteur s'il y a lieu ; l'objet est
+  au nom de l'emprunteur et à la référence du prêt quand elles sont connues ;
+- pour chaque clause retenue : citation de la clause, motif de contestation, fondement (article de
+  loi ou décision de justice) ;
+- des demandes précises (restitution, recalcul, renonciation à une pénalité, suspension d'une
+  procédure…), chiffrées quand c'est possible ;
+- la suite envisagée à défaut de réponse satisfaisante (médiateur, puis juge), en rappelant que
+  l'emprunteur préfère une solution amiable.
 
 ## Informations du dossier
 

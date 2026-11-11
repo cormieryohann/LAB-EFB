@@ -3,18 +3,33 @@ import { caseDetailLines } from '../constants/caseDetailsLabels';
 import { CLAUSE_CATEGORY_LABELS } from '../constants/clauseLabels';
 import type { CaseDetails } from '../types/contractAnalysis';
 import emailGuidelines from './mail-amiable.md?raw';
+import bankClaimTemplate from './modeles/3-amiable/reclamation-banque.md?raw';
+import mediatorReferralTemplate from './modeles/3-amiable/saisine-mediateur.md?raw';
+
+/** Modèle de lettre de l'étape amiable, propre à chaque destinataire. */
+const RECIPIENT_TEMPLATES: Record<EmailRecipient, string> = {
+  banque: bankClaimTemplate,
+  mediateur: mediatorReferralTemplate,
+};
 
 /**
- * Consigne système de la rédaction du mail amiable. Le ton et la structure du mail vivent dans
- * `mail-amiable.md`, modifiable sans toucher au code.
+ * Consigne système de la rédaction du mail amiable. Le ton vit dans `mail-amiable.md`, la
+ * structure dans le modèle du destinataire (`modeles/3-amiable/`) : tous deux modifiables sans
+ * toucher au code.
  */
-export const EMAIL_SYSTEM_PROMPT = `Tu es l'assistant de rédaction de VIGICONTRAT, un cabinet d'avocats qui défend les emprunteurs contre les clauses litigieuses de leurs contrats de crédit.
+export function emailSystemPrompt(recipient: EmailRecipient): string {
+  return `Tu es l'assistant de rédaction de VIGICONTRAT, un cabinet d'avocats qui défend les emprunteurs contre les clauses litigieuses de leurs contrats de crédit.
 
-Ta mission : rédiger, en français, le mail de la démarche amiable que l'avocat enverra, à partir de son dossier validé. Suis les consignes ci-dessous.
+Ta mission : rédiger, en français, le mail de la démarche amiable que l'avocat enverra, à partir de son dossier validé. Suis les consignes générales, puis le modèle de lettre du destinataire.
 
 <consignes>
 ${emailGuidelines}
-</consignes>`;
+</consignes>
+
+<modele>
+${RECIPIENT_TEMPLATES[recipient]}
+</modele>`;
+}
 
 const RECIPIENT_LABELS: Record<EmailRecipient, string> = {
   banque: 'le service réclamations de la banque',

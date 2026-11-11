@@ -1,18 +1,24 @@
 import type { LitigationInput } from '../types/litigation';
 import { formatCaseDetails, formatRetainedClauses } from './emailPrompt';
+import summonsTemplate from './modeles/4-contentieux/assignation-tribunal-judiciaire.md?raw';
 import briefGuidelines from './projet-assignation.md?raw';
 
 /**
- * Consigne système du projet d'acte contentieux. La structure de l'acte vit dans
- * `projet-assignation.md`, modifiable sans toucher au code.
+ * Consigne système du projet d'acte contentieux. L'esprit de l'acte vit dans
+ * `projet-assignation.md`, sa structure dans `modeles/4-contentieux/` : tous deux modifiables
+ * sans toucher au code.
  */
 export const LITIGATION_SYSTEM_PROMPT = `Tu es l'assistant de rédaction de VIGICONTRAT, un cabinet d'avocats qui défend les emprunteurs contre les clauses litigieuses de leurs contrats de crédit.
 
-Ta mission : rédiger, en français, le projet d'assignation de la procédure contentieuse, à partir du dossier validé par l'avocat. Suis les consignes ci-dessous.
+Ta mission : rédiger, en français, le projet d'assignation de la procédure contentieuse, à partir du dossier validé par l'avocat. Suis les consignes générales, puis le modèle d'acte.
 
 <consignes>
 ${briefGuidelines}
-</consignes>`;
+</consignes>
+
+<modele>
+${summonsTemplate}
+</modele>`;
 
 export function litigationInstruction({
   lawyerName,

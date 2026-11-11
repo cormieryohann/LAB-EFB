@@ -195,6 +195,8 @@ describe('draftAmicableEmail', () => {
     };
     expect(body).toMatchObject({ output_config: { effort: 'medium' } });
     expect(body.system).toContain('Consignes de rédaction du mail amiable');
+    expect(body.system).toContain('name: reclamation-banque');
+    expect(body.system).not.toContain('name: saisine-mediateur');
     const instruction = body.messages[0]?.content[0]?.text ?? '';
     expect(instruction).toContain('service réclamations de la banque');
     expect(instruction).toContain('Emprunteur : Camille Durand');
@@ -231,6 +233,7 @@ describe('draftLitigationBrief', () => {
     };
     expect(body).toMatchObject({ output_config: { effort: 'high' } });
     expect(body.system).toContain("Consignes de rédaction du projet d'assignation");
+    expect(body.system).toContain('name: assignation-tribunal-judiciaire');
     const instruction = body.messages[0]?.content[0]?.text ?? '';
     expect(instruction).toContain('Pièce n° 2 : Réponse à la démarche amiable');
     expect(instruction).toContain('Décision : à approfondir');

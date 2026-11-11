@@ -19,20 +19,24 @@ et les montants avant toute signification.
 
 ## Structure
 
-1. En-tête : juridiction saisie, demandeur (l'emprunteur), défendeur (la banque), avocat
-   constitué. La juridiction compétente est laissée entre crochets : l'avocat la détermine.
-2. **Faits** : le contrat (date, montant, durée si connus), les difficultés de l'emprunteur, la
+La structure suit le modèle d'acte fourni dans `<modele>`
+(`modeles/4-contentieux/assignation-tribunal-judiciaire.md`) : en-tête, parties, comparution,
+mentions obligatoires, objet de la demande (faits, tentative amiable, moyens de droit), par ces
+motifs, liste des pièces. La juridiction compétente est laissée entre crochets : l'avocat la
+détermine.
+
+Le fond de l'acte, à placer dans « OBJET DE LA DEMANDE » :
+
+1. **Faits** : le contrat (date, montant, durée si connus), les difficultés de l'emprunteur, la
    démarche amiable et son résultat.
-3. **Discussion** : une sous-partie par clause retenue, avec la citation de la clause, le moyen
+2. **Discussion** : une sous-partie par clause retenue, avec la citation de la clause, le moyen
    (pourquoi elle crée un déséquilibre significatif ou méconnaît la loi) et le fondement (article de
    loi, jurisprudence).
-4. **Préjudice et demandes** : ce que l'emprunteur obtient pour chaque clause (clause réputée non
-   écrite, restitution, déchéance du droit aux intérêts, recalcul de l'échéancier, dommages et
-   intérêts), chiffré quand le dossier le permet.
-5. **Par ces motifs** : la liste numérotée des demandes au tribunal, dont la condamnation de la
-   banque aux dépens et au paiement d'une somme au titre de l'article 700 du Code de procédure
-   civile (montant entre crochets).
-6. **Bordereau de pièces** : reprendre la liste fournie, dans le même ordre.
+3. **Préjudice** : ce que l'emprunteur obtient pour chaque clause (clause réputée non écrite,
+   restitution, déchéance du droit aux intérêts, recalcul de l'échéancier, dommages et intérêts),
+   chiffré quand le dossier le permet. Ces demandes sont reprises dans « PAR CES MOTIFS », avec la
+   condamnation de la banque aux dépens et au titre de l'article 700 du Code de procédure civile
+   (montant entre crochets).
 
 ## Informations du dossier
 

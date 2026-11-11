@@ -5,7 +5,7 @@ import type {
 } from '@anthropic-ai/sdk/resources/beta/messages';
 import type { z } from 'zod/v4';
 import { ANALYSIS_SYSTEM_PROMPT, analysisInstruction } from '../prompts/analysisPrompt';
-import { EMAIL_SYSTEM_PROMPT, emailInstruction } from '../prompts/emailPrompt';
+import { emailInstruction, emailSystemPrompt } from '../prompts/emailPrompt';
 import { LITIGATION_SYSTEM_PROMPT, litigationInstruction } from '../prompts/litigationPrompt';
 import type { AmicableEmail, AmicableEmailInput } from '../types/amicableEmail';
 import type { ContractAnalysis } from '../types/contractAnalysis';
@@ -231,7 +231,7 @@ export async function draftAmicableEmail(
 
   return runStructuredRequest({
     apiKey,
-    system: EMAIL_SYSTEM_PROMPT,
+    system: emailSystemPrompt(input.recipient),
     content: [{ type: 'text', text: emailInstruction(input) }],
     schema: AmicableEmailSchema,
     effort: 'medium',
