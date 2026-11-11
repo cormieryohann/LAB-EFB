@@ -120,6 +120,10 @@ describe('LitigationPanel', () => {
         retainedClauses: [{ clause: CLAUSE, decision: 'validee', note: '' }],
       }),
     );
-    expect(screen.getByText('À compléter : [Juridiction compétente]')).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('form', { name: 'Informations à compléter' })).getByLabelText(
+        'Juridiction compétente',
+      ),
+    ).toBeInTheDocument();
   });
 });

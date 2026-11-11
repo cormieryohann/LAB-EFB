@@ -1,6 +1,7 @@
 import { z } from 'zod/v4';
 import type { AmicableEmail, RetainedClause } from './amicableEmail';
 import type { CaseDetails } from './contractAnalysis';
+import type { DocumentCompletion } from './documentCompletion';
 
 export interface LitigationInput {
   lawyerName: string;
@@ -13,6 +14,8 @@ export interface LitigationInput {
   amicableEmail?: AmicableEmail;
   /** Réponse de la banque ou du médiateur à la démarche amiable, telle que saisie par l'avocat. */
   amicableOutcome: string;
+  /** Présent quand l'avocat complète un projet d'acte déjà rédigé. */
+  completion?: DocumentCompletion;
 }
 
 export const LitigationBriefSchema = z.object({

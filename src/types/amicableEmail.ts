@@ -1,6 +1,7 @@
 import { z } from 'zod/v4';
 import type { LawyerDecision } from '../stores/useLawyerReviewStore';
 import type { CaseDetails, Clause } from './contractAnalysis';
+import type { DocumentCompletion } from './documentCompletion';
 
 export type EmailRecipient = 'banque' | 'mediateur';
 
@@ -17,6 +18,8 @@ export interface AmicableEmailInput {
   summary: string;
   caseDetails: CaseDetails;
   retainedClauses: RetainedClause[];
+  /** Présent quand l'avocat complète un mail déjà rédigé. */
+  completion?: DocumentCompletion;
 }
 
 export const AmicableEmailSchema = z.object({

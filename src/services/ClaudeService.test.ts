@@ -206,6 +206,39 @@ describe('draftAmicableEmail', () => {
     expect(instruction).toContain("Note de l'avocat : Solide");
     expect(instruction).toContain('Obtenir la renonciation aux pénalités.');
     expect(JSON.stringify(body)).not.toContain('"type":"document"');
+    expect(instruction).not.toContain('<document_a_completer>');
+  });
+
+  it('demande de compléter le mail courant avec les réponses de l’avocat', async () => {
+    const email = { subject: 'Réclamation', body: 'Prêt PR-1' };
+    const fetchMock = mockStreamedMessage(JSON.stringify(email), 'end_turn');
+
+    await draftAmicableEmail('sk-ant-test', {
+      recipient: 'mediateur',
+      lawyerName: 'Me Martin',
+      conclusion: '',
+      summary: ANALYSIS.summary,
+      caseDetails: ANALYSIS.caseDetails,
+      retainedClauses: [{ clause: ANALYSIS.clauses[0], decision: 'validee', note: '' }],
+      completion: {
+        previousDraft: 'Objet : Réclamation\n\nPrêt [Numéro du prêt]',
+        answers: [{ placeholder: '[Numéro du prêt]', value: 'PR-1' }],
+        notes: 'Insister sur les frais.',
+      },
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(init.body)) as {
+      system: string;
+      messages: { content: { text: string }[] }[];
+    };
+    expect(body.system).toContain('name: saisine-mediateur');
+    const instruction = body.messages[0]?.content[0]?.text ?? '';
+    expect(instruction).toContain(
+      '<document_a_completer>\nObjet : Réclamation\n\nPrêt [Numéro du prêt]\n</document_a_completer>',
+    );
+    expect(instruction).toContain('[Numéro du prêt] : PR-1');
+    expect(instruction).toContain('Insister sur les frais.');
   });
 });
 

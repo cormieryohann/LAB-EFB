@@ -16,6 +16,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/material';
+import { useState } from 'react';
 import { useDraftAmicableEmail } from '../hooks/api/useDraftAmicableEmail';
 import { useClipboard } from '../hooks/useClipboard';
 import { useAmicableEmailStore } from '../stores/useAmicableEmailStore';
@@ -23,10 +24,12 @@ import { useApiKeyStore } from '../stores/useApiKeyStore';
 import { useLawyerReviewStore } from '../stores/useLawyerReviewStore';
 import type { EmailRecipient } from '../types/amicableEmail';
 import type { ContractAnalysis } from '../types/contractAnalysis';
+import type { CompletionAnswers, DocumentCompletion } from '../types/documentCompletion';
 import { findPlaceholders } from '../utils/findPlaceholders';
 import { retainedClauses } from '../utils/retainedClauses';
 import { sortClausesByStrength } from '../utils/sortClausesByStrength';
 import { CaseDetailsCard } from './CaseDetailsCard';
+import { MissingInformationForm } from './MissingInformationForm';
 
 interface AmicableEmailPanelProps {
   analysis: ContractAnalysis;
@@ -58,10 +61,16 @@ export function AmicableEmailPanel({
   const setDraft = useAmicableEmailStore((state) => state.setDraft);
   const updateDraft = useAmicableEmailStore((state) => state.updateDraft);
   const drafting = useDraftAmicableEmail();
+  // Le chargement et l'erreur d'un complément s'affichent sous le formulaire, pas en haut de page.
+  const isCompleting = drafting.variables?.input.completion !== undefined;
   const clipboard = useClipboard('Mail copié dans le presse-papiers');
 
+  // Change à chaque complément réussi : le formulaire repart vide pour les champs restants.
+  const [completionRound, setCompletionRound] = useState(0);
+
   const retained = retainedClauses(sortClausesByStrength(analysis.clauses), reviews);
-  const placeholders = draft === undefined ? [] : findPlaceholders(draft.body);
+  const placeholders =
+    draft === undefined ? [] : findPlaceholders(`${draft.subject}\n${draft.body}`);
   // Adresse trouvée dans le contrat pour chaque destinataire : elle pré-remplit le champ.
   const contractAddress = (target: EmailRecipient): string =>
     (target === 'banque'
@@ -77,7 +86,7 @@ export function AmicableEmailPanel({
     if (isPrefilled) setRecipientAddress(contractAddress(next));
   };
 
-  const generate = (): void => {
+  const draftEmail = (completion?: DocumentCompletion): void => {
     if (apiKey === null) return;
     drafting.mutate(
       {
@@ -89,15 +98,22 @@ export function AmicableEmailPanel({
           summary: analysis.summary,
           caseDetails: analysis.caseDetails,
           retainedClauses: retained,
+          ...(completion === undefined ? {} : { completion }),
         },
       },
       {
         onSuccess: (email) => {
           setDraft(email);
+          if (completion !== undefined) setCompletionRound((round) => round + 1);
           if (recipientAddress.trim() === '') setRecipientAddress(contractAddress(recipient));
         },
       },
     );
+  };
+
+  const complete = (answers: CompletionAnswers): void => {
+    if (draft === undefined) return;
+    draftEmail({ ...answers, previousDraft: `Objet : ${draft.subject}\n\n${draft.body}` });
   };
 
   return (
@@ -141,10 +157,10 @@ export function AmicableEmailPanel({
               variant="contained"
               size="large"
               startIcon={<EditNoteIcon />}
-              onClick={generate}
-              loading={drafting.isPending}
+              onClick={() => draftEmail()}
+              loading={drafting.isPending && !isCompleting}
               loadingPosition="start"
-              disabled={apiKey === null}
+              disabled={apiKey === null || drafting.isPending}
             >
               {draft === undefined ? 'Rédiger le mail avec l’IA' : 'Rédiger à nouveau'}
             </Button>
@@ -154,7 +170,7 @@ export function AmicableEmailPanel({
               Ajoutez votre clé Claude (en haut à droite) pour rédiger le mail.
             </Alert>
           )}
-          {drafting.isPending && (
+          {drafting.isPending && !isCompleting && (
             <Box role="status">
               <LinearProgress />
               <Typography color="text.secondary" sx={{ mt: 1 }}>
@@ -162,7 +178,9 @@ export function AmicableEmailPanel({
               </Typography>
             </Box>
           )}
-          {drafting.isError && <Alert severity="error">{drafting.error.message}</Alert>}
+          {drafting.isError && !isCompleting && (
+            <Alert severity="error">{drafting.error.message}</Alert>
+          )}
         </Stack>
       </Paper>
 
@@ -196,11 +214,6 @@ export function AmicableEmailPanel({
               minRows={12}
               fullWidth
             />
-            {placeholders.length > 0 && (
-              <Alert severity="warning">
-                À compléter avant l’envoi : {placeholders.join(', ')}
-              </Alert>
-            )}
             <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: 'wrap' }}>
               <Button
                 variant="contained"
@@ -219,6 +232,17 @@ export function AmicableEmailPanel({
             </Stack>
           </Stack>
         </Paper>
+      )}
+
+      {placeholders.length > 0 && (
+        <MissingInformationForm
+          key={completionRound}
+          placeholders={placeholders}
+          onComplete={complete}
+          loading={drafting.isPending && isCompleting}
+          error={isCompleting ? drafting.error?.message : undefined}
+          disabled={apiKey === null || drafting.isPending}
+        />
       )}
 
       <Box sx={{ pt: 1, borderTop: 1, borderColor: 'divider' }}>

@@ -95,9 +95,9 @@ describe('AmicableEmailPanel', () => {
         { clause: DECHEANCE, decision: 'validee', note: 'Jurisprudence favorable' },
       ],
     });
-    expect(
-      screen.getByText('À compléter avant l’envoi : [Numéro du prêt], [Nom du client]'),
-    ).toBeInTheDocument();
+    const form = screen.getByRole('form', { name: 'Informations à compléter' });
+    expect(within(form).getByLabelText('Numéro du prêt')).toBeInTheDocument();
+    expect(within(form).getByLabelText('Nom du client')).toBeInTheDocument();
     // L'adresse du médiateur trouvée dans le contrat pré-remplit le champ, et suit le destinataire.
     const address = screen.getByLabelText('Adresse du destinataire');
     expect(address).toHaveValue('mediateur@asf-exemple.fr');
@@ -129,6 +129,48 @@ describe('AmicableEmailPanel', () => {
       ),
     ).toBeInTheDocument();
   });
+
+  it('complète le mail courant avec les informations manquantes et les précisions', async () => {
+    useAmicableEmailStore.getState().setDraft({
+      subject: 'Réclamation prêt [Numéro du prêt]',
+      body: 'Madame, Monsieur,\n\nRéclamation du [Date de la réclamation].',
+    });
+    vi.mocked(draftAmicableEmail).mockResolvedValue({
+      subject: 'Réclamation prêt PR-1',
+      body: 'Madame, Monsieur,\n\nRéclamation du [Date de la réclamation].',
+    });
+    const user = userEvent.setup();
+    renderWithProviders(
+      <AmicableEmailPanel analysis={ANALYSIS} onBack={vi.fn()} onLitigation={vi.fn()} />,
+    );
+
+    const form = screen.getByRole('form', { name: 'Informations à compléter' });
+    const complete = within(form).getByRole('button', { name: 'Compléter le document avec l’IA' });
+    expect(complete).toBeDisabled();
+    await user.click(within(form).getByLabelText('Numéro du prêt'));
+    await user.paste('PR-1');
+    await user.click(within(form).getByLabelText('Précisions pour l’IA (facultatif)'));
+    await user.paste('Insister sur les frais.');
+    await user.click(complete);
+
+    expect(await screen.findByLabelText('Objet')).toHaveValue('Réclamation prêt PR-1');
+    expect(draftAmicableEmail).toHaveBeenCalledWith(
+      'sk-ant-test',
+      expect.objectContaining({
+        completion: {
+          previousDraft:
+            'Objet : Réclamation prêt [Numéro du prêt]\n\nMadame, Monsieur,\n\nRéclamation du [Date de la réclamation].',
+          answers: [{ placeholder: '[Numéro du prêt]', value: 'PR-1' }],
+          notes: 'Insister sur les frais.',
+        },
+      }),
+    );
+    // Le formulaire repart vide, avec le seul champ encore manquant.
+    const nextForm = screen.getByRole('form', { name: 'Informations à compléter' });
+    expect(within(nextForm).queryByLabelText('Numéro du prêt')).not.toBeInTheDocument();
+    expect(within(nextForm).getByLabelText('Date de la réclamation')).toHaveValue('');
+    expect(within(nextForm).getByLabelText('Précisions pour l’IA (facultatif)')).toHaveValue('');
+  }, 15_000);
 
   it('affiche l’erreur de rédaction', async () => {
     const { ClaudeServiceError } = await import('../services/ClaudeService');

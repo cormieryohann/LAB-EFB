@@ -2,6 +2,7 @@ import type { AmicableEmailInput, EmailRecipient, RetainedClause } from '../type
 import { caseDetailLines } from '../constants/caseDetailsLabels';
 import { CLAUSE_CATEGORY_LABELS } from '../constants/clauseLabels';
 import type { CaseDetails } from '../types/contractAnalysis';
+import { formatCompletion } from './completionPrompt';
 import emailGuidelines from './mail-amiable.md?raw';
 import bankClaimTemplate from './modeles/3-amiable/reclamation-banque.md?raw';
 import mediatorReferralTemplate from './modeles/3-amiable/saisine-mediateur.md?raw';
@@ -80,8 +81,9 @@ export function emailInstruction({
   summary,
   caseDetails,
   retainedClauses,
+  completion,
 }: AmicableEmailInput): string {
-  return `Rédige le mail adressé à ${RECIPIENT_LABELS[recipient]}.
+  const instruction = `Rédige le mail adressé à ${RECIPIENT_LABELS[recipient]}.
 
 Avocat signataire : ${lawyerName.trim()}
 
@@ -95,4 +97,5 @@ ${summary}
 ${formatRetainedClauses(retainedClauses)}
 </clauses_retenues>
 ${conclusion.trim().length > 0 ? `\n<conclusion_de_l_avocat>\n${conclusion.trim()}\n</conclusion_de_l_avocat>\n` : ''}`;
+  return completion === undefined ? instruction : `${instruction}\n${formatCompletion(completion)}`;
 }

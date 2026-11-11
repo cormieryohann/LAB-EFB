@@ -13,6 +13,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { useState } from 'react';
 import { useDraftLitigationBrief } from '../hooks/api/useDraftLitigationBrief';
 import { useClipboard } from '../hooks/useClipboard';
 import { useAmicableEmailStore } from '../stores/useAmicableEmailStore';
@@ -21,10 +22,12 @@ import { useDocumentStore } from '../stores/useDocumentStore';
 import { useLawyerReviewStore } from '../stores/useLawyerReviewStore';
 import { useLitigationStore } from '../stores/useLitigationStore';
 import type { ContractAnalysis } from '../types/contractAnalysis';
+import type { CompletionAnswers, DocumentCompletion } from '../types/documentCompletion';
 import { downloadTextFile } from '../utils/downloadTextFile';
 import { findPlaceholders } from '../utils/findPlaceholders';
 import { retainedClauses } from '../utils/retainedClauses';
 import { sortClausesByStrength } from '../utils/sortClausesByStrength';
+import { MissingInformationForm } from './MissingInformationForm';
 
 interface LitigationPanelProps {
   analysis: ContractAnalysis;
@@ -44,6 +47,10 @@ export function LitigationPanel({ analysis, onBack }: LitigationPanelProps): Rea
   const setDraft = useLitigationStore((state) => state.setDraft);
   const updateDraft = useLitigationStore((state) => state.updateDraft);
   const drafting = useDraftLitigationBrief();
+  // Le chargement et l'erreur d'un complément s'affichent sous le formulaire, pas en haut de page.
+  const isCompleting = drafting.variables?.input.completion !== undefined;
+  // Change à chaque complément réussi : le formulaire repart vide pour les champs restants.
+  const [completionRound, setCompletionRound] = useState(0);
   const clipboard = useClipboard('Projet d’acte copié dans le presse-papiers');
 
   const retained = retainedClauses(sortClausesByStrength(analysis.clauses), reviews);
@@ -56,9 +63,9 @@ export function LitigationPanel({ analysis, onBack }: LitigationPanelProps): Rea
       : [`Mail de réclamation amiable : « ${amicableEmail.subject} »`]),
     ...(amicableOutcome.trim().length > 0 ? ['Réponse à la démarche amiable'] : []),
   ];
-  const placeholders = draft === undefined ? [] : findPlaceholders(draft.body);
+  const placeholders = draft === undefined ? [] : findPlaceholders(`${draft.title}\n${draft.body}`);
 
-  const generate = (): void => {
+  const draftBrief = (completion?: DocumentCompletion): void => {
     if (apiKey === null) return;
     drafting.mutate(
       {
@@ -72,10 +79,21 @@ export function LitigationPanel({ analysis, onBack }: LitigationPanelProps): Rea
           exhibits,
           amicableEmail,
           amicableOutcome,
+          ...(completion === undefined ? {} : { completion }),
         },
       },
-      { onSuccess: setDraft },
+      {
+        onSuccess: (brief) => {
+          setDraft(brief);
+          if (completion !== undefined) setCompletionRound((round) => round + 1);
+        },
+      },
     );
+  };
+
+  const complete = (answers: CompletionAnswers): void => {
+    if (draft === undefined) return;
+    draftBrief({ ...answers, previousDraft: `${draft.title}\n\n${draft.body}` });
   };
 
   return (
@@ -130,10 +148,10 @@ export function LitigationPanel({ analysis, onBack }: LitigationPanelProps): Rea
               variant="contained"
               size="large"
               startIcon={<EditNoteIcon />}
-              onClick={generate}
-              loading={drafting.isPending}
+              onClick={() => draftBrief()}
+              loading={drafting.isPending && !isCompleting}
               loadingPosition="start"
-              disabled={apiKey === null}
+              disabled={apiKey === null || drafting.isPending}
             >
               {draft === undefined ? 'Rédiger le projet d’assignation' : 'Rédiger à nouveau'}
             </Button>
@@ -143,7 +161,7 @@ export function LitigationPanel({ analysis, onBack }: LitigationPanelProps): Rea
               Ajoutez votre clé Claude (en haut à droite) pour rédiger le projet d’acte.
             </Alert>
           )}
-          {drafting.isPending && (
+          {drafting.isPending && !isCompleting && (
             <Box role="status">
               <LinearProgress />
               <Typography color="text.secondary" sx={{ mt: 1 }}>
@@ -151,7 +169,9 @@ export function LitigationPanel({ analysis, onBack }: LitigationPanelProps): Rea
               </Typography>
             </Box>
           )}
-          {drafting.isError && <Alert severity="error">{drafting.error.message}</Alert>}
+          {drafting.isError && !isCompleting && (
+            <Alert severity="error">{drafting.error.message}</Alert>
+          )}
         </Stack>
       </Paper>
 
@@ -172,9 +192,6 @@ export function LitigationPanel({ analysis, onBack }: LitigationPanelProps): Rea
               minRows={16}
               fullWidth
             />
-            {placeholders.length > 0 && (
-              <Alert severity="warning">À compléter : {placeholders.join(', ')}</Alert>
-            )}
             <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: 'wrap' }}>
               <Button
                 variant="contained"
@@ -195,6 +212,17 @@ export function LitigationPanel({ analysis, onBack }: LitigationPanelProps): Rea
             </Stack>
           </Stack>
         </Paper>
+      )}
+
+      {placeholders.length > 0 && (
+        <MissingInformationForm
+          key={completionRound}
+          placeholders={placeholders}
+          onComplete={complete}
+          loading={drafting.isPending && isCompleting}
+          error={isCompleting ? drafting.error?.message : undefined}
+          disabled={apiKey === null || drafting.isPending}
+        />
       )}
 
       <Snackbar

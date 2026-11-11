@@ -1,4 +1,5 @@
 import type { LitigationInput } from '../types/litigation';
+import { formatCompletion } from './completionPrompt';
 import { formatCaseDetails, formatRetainedClauses } from './emailPrompt';
 import summonsTemplate from './modeles/4-contentieux/assignation-tribunal-judiciaire.md?raw';
 import briefGuidelines from './projet-assignation.md?raw';
@@ -29,6 +30,7 @@ export function litigationInstruction({
   exhibits,
   amicableEmail,
   amicableOutcome,
+  completion,
 }: LitigationInput): string {
   const sections = [
     `Rédige le projet d'assignation.\n\nAvocat constitué : ${lawyerName.trim()}`,
@@ -50,5 +52,6 @@ export function litigationInstruction({
       ? `<resultat_de_l_amiable>\n${amicableOutcome.trim()}\n</resultat_de_l_amiable>`
       : '<resultat_de_l_amiable>Non renseigné : laisser le résultat de la démarche amiable entre crochets.</resultat_de_l_amiable>',
   );
+  if (completion !== undefined) sections.push(formatCompletion(completion));
   return sections.join('\n\n');
 }
